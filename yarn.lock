@@ -85,7 +85,23 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.1.tgz#03c891fec7f93be0ae44ed74e57a122a38732ce7"
   integrity sha512-cUriqMauq1ylzP2TxePNdPqkwI7Le3Annh4K9rrpvKfSBB/bdW+Iu1ihBaTIABTAAJ85LmKL5SSPPL9ry8d1gQ==
 
-"@types/bn.js@^4.11.4":
+"@reality.eth/contracts@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@reality.eth/contracts/-/contracts-2.3.1.tgz#76e4ae61e4776c434ab3745803922d3992f9332c"
+  integrity sha512-bOAKabKnJCuSKwfDsf4lbyu06fS1WcfN0wkwZwo2R6QRkrWiTNuJrv52kwQNDX014SA3Jnw9fE0ZhDdg5No5Ew==
+
+"@reality.eth/reality-eth-lib@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@reality.eth/reality-eth-lib/-/reality-eth-lib-2.1.1.tgz#e74000d3ab5df0e7cb5ae4658e140fbf5a657f83"
+  integrity sha512-lvN8U0Lo5cKQS4oLz/4Tym5VgTD5kLcjv3YWv1pznwzzSoOVNIiGSqBgdMHhi5NyA2RSKSl3aG0nkorfwg0zKQ==
+  dependencies:
+    "@reality.eth/contracts" "^2.3.1"
+    bignumber.js "^7.2.1"
+    bn.js "^4.11.8"
+    ethereumjs-abi "^0.6.5"
+    sprintf-js "^1.1.1"
+
+"@types/bn.js@^4.11.3", "@types/bn.js@^4.11.4":
   version "4.11.6"
   resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-4.11.6.tgz#c306c70d9358aaea33cd4eda092a742b9505967c"
   integrity sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==
@@ -1249,6 +1265,11 @@ big-number@^2.0.0:
   resolved "https://registry.yarnpkg.com/big-number/-/big-number-2.0.0.tgz#98548eda9393b445791670a213aed6f6dcd66ee3"
   integrity sha512-C67Su0g+XsmXADX/UM9L/+xSbqqwq0D/qGJs2ky6Noy2FDuCZnC38ZSXODiaBvqWma2VYRZEXgm4H74PS6tCDg==
 
+bignumber.js@^7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
+  integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
+
 "bignumber.js@git+https://github.com/debris/bignumber.js.git#94d7146671b9719e00a09c29b01a691bc85048c2":
   version "2.0.7"
   resolved "git+https://github.com/debris/bignumber.js.git#94d7146671b9719e00a09c29b01a691bc85048c2"
@@ -1303,7 +1324,7 @@ bn.js@4.11.8:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
   integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.1, bn.js@^4.11.6, bn.js@^4.11.9:
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.1, bn.js@^4.11.6, bn.js@^4.11.8, bn.js@^4.11.9:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
   integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
@@ -2396,6 +2417,14 @@ ethereum-cryptography@^0.1.3:
     secp256k1 "^4.0.1"
     setimmediate "^1.0.5"
 
+ethereumjs-abi@^0.6.5:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/ethereumjs-abi/-/ethereumjs-abi-0.6.8.tgz#71bc152db099f70e62f108b7cdfca1b362c6fcae"
+  integrity sha512-Tx0r/iXI6r+lRsdvkFDlut0N08jWMnKRZ6Gkq+Nmw75lZe4e6o3EkSnkaBP5NF6+m5PTGAr9JP43N3LyeoglsA==
+  dependencies:
+    bn.js "^4.11.8"
+    ethereumjs-util "^6.0.0"
+
 ethereumjs-tx@^1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-1.3.7.tgz#88323a2d875b10549b8347e09f4862b546f3d89a"
@@ -2416,6 +2445,19 @@ ethereumjs-util@^5.0.0:
     ethjs-util "^0.1.3"
     rlp "^2.0.0"
     safe-buffer "^5.1.1"
+
+ethereumjs-util@^6.0.0:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.2.1.tgz#fcb4e4dd5ceacb9d2305426ab1a5cd93e3163b69"
+  integrity sha512-W2Ktez4L01Vexijrm5EB6w7dg4n/TgpoYU4avuT5T3Vmnw/eCRtiBrJfQYS/DCSvDIOLn2k57GcHdeBcgVxAqw==
+  dependencies:
+    "@types/bn.js" "^4.11.3"
+    bn.js "^4.11.0"
+    create-hash "^1.1.2"
+    elliptic "^6.5.2"
+    ethereum-cryptography "^0.1.3"
+    ethjs-util "0.1.6"
+    rlp "^2.2.3"
 
 ethers@^4.0.27:
   version "4.0.49"
@@ -2440,7 +2482,7 @@ ethjs-unit@^0.1.6:
     bn.js "4.11.6"
     number-to-bn "1.7.0"
 
-ethjs-util@^0.1.3:
+ethjs-util@0.1.6, ethjs-util@^0.1.3:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/ethjs-util/-/ethjs-util-0.1.6.tgz#f308b62f185f9fe6237132fb2a9818866a5cd536"
   integrity sha512-CUnVOQq7gSpDHZVVrQW8ExxUETWrnrvXYvYz55wOU8Uj4VCgw56XC2B/fVqQN+f7gmrnRHSLVnFAwsCuNwji8w==
@@ -4814,7 +4856,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rlp@^2.0.0:
+rlp@^2.0.0, rlp@^2.2.3:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/rlp/-/rlp-2.2.6.tgz#c80ba6266ac7a483ef1e69e8e2f056656de2fb2c"
   integrity sha512-HAfAmL6SDYNWPUOJNrM500x4Thn4PZsEy5pijPh40U9WfNk0z15hUYzO9xVIMAdIHdFtD8CBDHd75Td1g36Mjg==
@@ -5164,6 +5206,11 @@ split-string@^3.0.1, split-string@^3.0.2:
   integrity sha512-NzNVhJDYpwceVVii8/Hu6DKfD2G+NrQHlS/V/qgv763EYudVwEcMQNxd2lh+0VrUByXN/oJkl5grOhYWvQUYiw==
   dependencies:
     extend-shallow "^3.0.0"
+
+sprintf-js@^1.1.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
+  integrity sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==
 
 sprintf-js@~1.0.2:
   version "1.0.3"
