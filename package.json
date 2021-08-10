@@ -5,7 +5,7 @@
   "repository": "git@github.com:Polkamarkets/bepro-api.git",
   "license": "MIT",
   "scripts": {
-    "start": "tsnd --transpile-only --respawn --ignore-watch node_modules src/server.ts"
+    "start": "ts-node-dev --respawn --pretty --transpile-only src/index.ts"
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^2.1.1",
