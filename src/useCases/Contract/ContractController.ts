@@ -13,7 +13,7 @@ export class ContractController {
       const data = await this.contractUseCase.execute({
         contract,
         method,
-        args: args || []
+        args: { ...(args as string).split(',') } || {}
       } as ContractCallDTO);
 
       return response.status(200).send(data);
