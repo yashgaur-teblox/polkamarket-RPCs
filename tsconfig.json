@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "module": "commonjs",
-    "strict": false,
+    "lib": ["es6"],
     "allowJs": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "removeComments": true,
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
     "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "src",
-    "baseUrl": "src"
+    "baseUrl": ".",
+    "paths": {
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@useCases/*": ["./src/useCases/*"]
+    }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*"]
 }
