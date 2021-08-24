@@ -1,4 +1,4 @@
-import { ContractProvider } from 'providers/ContractProvider';
+import { ContractProvider } from '@providers/ContractProvider';
 import { ContractCallDTO } from './ContractDTO';
 
 export class ContractUseCase {
