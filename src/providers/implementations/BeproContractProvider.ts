@@ -1,6 +1,6 @@
 import * as beprojs from 'bepro-js';
 
-import { ContractProvider } from 'providers/ContractProvider';
+import { ContractProvider } from '@providers/ContractProvider';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;

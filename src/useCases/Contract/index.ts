@@ -1,4 +1,4 @@
-import { BeproContractProvider } from '../../providers/implementations/BeproContractProvider';
+import { BeproContractProvider } from '@providers/implementations/BeproContractProvider';
 import { ContractController } from './ContractController';
 import { ContractUseCase } from './ContractUseCase';
 import { contractSchema } from './ContractSchema';
