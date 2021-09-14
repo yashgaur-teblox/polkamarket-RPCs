@@ -5,6 +5,8 @@ export class ContractUseCase {
   constructor(private contractProvider: ContractProvider) {}
 
   async execute(data: ContractCallDTO) {
-    return this.contractProvider[data.contract][data.method](data.args);
+    const contract = this.contractProvider[data.contract].getContract();
+
+    return contract.methods[data.method](...data.args).call();
   }
 }
