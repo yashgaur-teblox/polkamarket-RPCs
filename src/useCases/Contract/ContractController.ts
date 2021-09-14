@@ -13,10 +13,10 @@ export class ContractController {
       const data = await this.contractUseCase.execute({
         contract,
         method,
-        args: { ...(args as string).split(',') } || {}
+        args: args ? (args as string).split(',') : []
       } as ContractCallDTO);
 
-      return response.status(200).send(data);
+      return response.status(200).send(Object.values(data));
     } catch (error) {
       return response.status(500).json({
         message: error.message || 'Unexpected contract call error.'
