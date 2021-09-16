@@ -16,6 +16,10 @@ export class ContractController {
         args: args ? (args as string).split(',') : []
       } as ContractCallDTO);
 
+      if (typeof data === 'boolean') {
+        return response.status(200).send(data);
+      }
+
       return response.status(200).send(Object.values(data));
     } catch (error) {
       return response.status(500).json({
