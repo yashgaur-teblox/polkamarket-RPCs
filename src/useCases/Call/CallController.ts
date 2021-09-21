@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
-import { ContractCallDTO } from './ContractDTO';
+import { CallDTO } from './CallDTO';
 
-import { ContractUseCase } from './ContractUseCase';
+import { CallUseCase } from './CallUseCase';
 
-export class ContractController {
-  constructor(private contractUseCase: ContractUseCase) {}
+export class CallController {
+  constructor(private callUseCase: CallUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
     const { contract, method, args } = request.query;
 
     try {
-      const data = await this.contractUseCase.execute({
+      const data = await this.callUseCase.execute({
         contract,
         method,
         args: args ? (args as string).split(',') : []
-      } as ContractCallDTO);
+      } as CallDTO);
 
       if (typeof data === 'boolean') {
         return response.status(200).send(data);

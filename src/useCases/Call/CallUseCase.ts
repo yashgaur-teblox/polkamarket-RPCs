@@ -1,10 +1,10 @@
 import { ContractProvider } from '@providers/ContractProvider';
-import { ContractCallDTO } from './ContractDTO';
+import { CallDTO } from './CallDTO';
 
-export class ContractUseCase {
+export class CallUseCase {
   constructor(private contractProvider: ContractProvider) {}
 
-  async execute(data: ContractCallDTO) {
+  async execute(data: CallDTO) {
     const contract = this.contractProvider[data.contract].getContract();
 
     return contract.methods[data.method](...data.args).call();
