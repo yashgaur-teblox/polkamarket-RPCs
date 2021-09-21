@@ -16,6 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
+      "@assets/*": ["./src/assets/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@providers/*": ["./src/providers/*"],
       "@useCases/*": ["./src/useCases/*"]
