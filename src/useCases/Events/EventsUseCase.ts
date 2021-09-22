@@ -6,12 +6,7 @@ export class EventsUseCase {
 
   async execute({ contract, eventName, filter }: EventsDTO) {
     const events = await this.contractProvider[contract]
-      .getContract()
-      .getPastEvents(eventName, {
-        fromBlock: 0,
-        toBlock: 'latest',
-        filter: filter
-      });
+      .getEvents(eventName, { filter });
 
     return events;
   }
