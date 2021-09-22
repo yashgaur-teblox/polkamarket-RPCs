@@ -1,5 +1,7 @@
+import { Contract } from '@models/contract';
+
 export interface CallDTO {
-  contract: 'predictionMarket' | 'erc20' | 'realitio';
+  contract: Contract;
   method: any;
   args: any;
 }
