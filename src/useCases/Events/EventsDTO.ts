@@ -1,5 +1,9 @@
+import { Contract } from '@models/contract';
+
 export interface EventsDTO {
-  contract: 'predictionMarket' | 'erc20' | 'realitio';
-  method: any;
-  args: any;
+  contract: Contract;
+  eventName: string;
+  filter: {
+    [key: string]: string;
+  };
 }
