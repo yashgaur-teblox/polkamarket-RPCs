@@ -7,13 +7,13 @@ export class EventsController {
   constructor(private eventsUseCase: EventsUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
-    const { contract, method, args } = request.query;
+    const { contract, eventName, ...filter } = request.query;
 
     try {
       const data = await this.eventsUseCase.execute({
         contract,
-        method,
-        args: args ? (args as string).split(',') : []
+        eventName,
+        filter: filter || {}
       } as EventsDTO);
 
       if (typeof data === 'boolean') {
