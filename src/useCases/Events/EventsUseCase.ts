@@ -6,7 +6,7 @@ export class EventsUseCase {
 
   async execute({ contract, eventName, filter }: EventsDTO) {
     const events = await this.contractProvider[contract]
-      .getEvents(eventName, { filter });
+      .getEvents(eventName, filter);
 
     return events;
   }
