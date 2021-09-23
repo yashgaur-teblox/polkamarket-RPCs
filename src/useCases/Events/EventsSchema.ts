@@ -5,5 +5,6 @@ export const eventsSchema = yup.object({
     .mixed()
     .oneOf(['predictionMarket', 'erc20', 'realitio'])
     .required('Contract is required!'),
-  eventName: yup.string().required('Event name is required!')
+  eventName: yup.string().required('Event name is required!'),
+  address: yup.string().required('Address is required!')
 });

@@ -5,8 +5,8 @@ export class CallUseCase {
   constructor(private contractProvider: ContractProvider) {}
 
   async execute(data: CallDTO) {
-    const contract = this.contractProvider[data.contract].getContract();
+    const contract = this.contractProvider.getContract(data.contract, data.address);
 
-    return contract.methods[data.method](...data.args).call();
+    return contract.getContract().methods[data.method](...data.args).call();
   }
 }

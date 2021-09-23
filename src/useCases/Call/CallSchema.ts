@@ -5,5 +5,6 @@ export const callSchema = yup.object({
     .mixed()
     .oneOf(['predictionMarket', 'erc20', 'realitio'])
     .required('Contract is required!'),
-  method: yup.string().required('Method is required!')
+  method: yup.string().required('Method is required!'),
+  address: yup.string().required('Address is required!')
 });
