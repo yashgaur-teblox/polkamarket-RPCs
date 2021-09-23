@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^2.1.1",
-    "bepro-js": "bepronetwork/bepro-js#feature/prediction-markets-refactor-sc",
+    "bepro-js": "bepronetwork/bepro-js#feature/prediction-markets",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
