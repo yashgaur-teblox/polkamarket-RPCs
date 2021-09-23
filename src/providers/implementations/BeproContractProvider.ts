@@ -6,8 +6,10 @@ export class BeproContractProvider implements ContractProvider {
   public bepro: any;
 
   constructor() {
+    const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
     this.bepro = new beprojs.Application({
-      web3Provider: process.env.WEB3_PROVIDER
+      web3Provider: process.env.WEB3_PROVIDER,
+      blockConfig
     });
     this.bepro.start();
   }
