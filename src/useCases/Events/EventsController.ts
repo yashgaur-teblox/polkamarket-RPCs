@@ -7,12 +7,13 @@ export class EventsController {
   constructor(private eventsUseCase: EventsUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
-    const { contract, eventName, filter } = request.query;
+    const { contract, eventName, filter, address } = request.query;
 
     try {
       const data = await this.eventsUseCase.execute({
         contract,
         eventName,
+        address,
         filter: filter ? JSON.parse(filter as string) : {}
       } as EventsDTO);
 

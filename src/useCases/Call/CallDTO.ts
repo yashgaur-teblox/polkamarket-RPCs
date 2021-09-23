@@ -4,4 +4,5 @@ export interface CallDTO {
   contract: Contract;
   method: any;
   args: any;
+  address: any;
 }

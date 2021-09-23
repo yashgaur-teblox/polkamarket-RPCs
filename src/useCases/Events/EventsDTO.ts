@@ -6,4 +6,5 @@ export interface EventsDTO {
   filter: {
     [key: string]: string;
   };
+  address: string;
 }

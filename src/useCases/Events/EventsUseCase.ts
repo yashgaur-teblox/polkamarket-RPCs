@@ -4,9 +4,10 @@ import { EventsDTO } from './EventsDTO';
 export class EventsUseCase {
   constructor(private contractProvider: ContractProvider) {}
 
-  async execute({ contract, eventName, filter }: EventsDTO) {
-    const events = await this.contractProvider[contract]
-      .getEvents(eventName, filter);
+  async execute({ contract, eventName, filter, address }: EventsDTO) {
+    const beproContract = this.contractProvider.getContract(contract, address);
+
+    const events = await beproContract.getEvents(eventName, filter);
 
     return events;
   }

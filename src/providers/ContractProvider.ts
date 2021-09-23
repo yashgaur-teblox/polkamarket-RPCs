@@ -1,5 +1,3 @@
 export interface ContractProvider {
-  predictionMarket: any;
-  erc20: any;
-  realitio: any;
+  getContract: (contract: string, address: string) => any;
 }

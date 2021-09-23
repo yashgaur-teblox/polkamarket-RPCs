@@ -7,12 +7,13 @@ export class CallController {
   constructor(private callUseCase: CallUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
-    const { contract, method, args } = request.query;
+    const { contract, method, args, address } = request.query;
 
     try {
       const data = await this.callUseCase.execute({
         contract,
         method,
+        address,
         args: args ? (args as string).split(',') : []
       } as CallDTO);
 
