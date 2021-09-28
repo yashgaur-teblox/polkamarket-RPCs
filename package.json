@@ -5,7 +5,7 @@
   "repository": "git@github.com:Polkamarkets/bepro-api.git",
   "license": "MIT",
   "scripts": {
-    "build": "babel src --extensions '.js,.ts' --out-dir dist --copy-files --no-copy-ignored",
+    "build": "babel src --out-dir dist --copy-files --no-copy-ignored",
     "start": "yarn run build && node dist/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/index.ts",
     "test": "jest"
