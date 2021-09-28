@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/index.ts",
     "test": "jest",
-    "heroku-postbuild": "babel src --extensions \\\".js,.ts\\\" --out-dir dist --copy-files --no-copy-ignored" // escaping quotes issue
+    "heroku-postbuild": "babel src --extensions \\\".js,.ts\\\" --out-dir dist --copy-files --no-copy-ignored"
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^2.1.1",
