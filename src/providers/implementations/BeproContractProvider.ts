@@ -37,7 +37,7 @@ export class BeproContractProvider implements ContractProvider {
       return events;
     }
 
-    const client = createNodeRedisClient();
+    const client = createNodeRedisClient({ url: process.env.REDIS_URL });
 
 		// iterating by block numbers
 		let events = [];
