@@ -60,7 +60,7 @@ export class BeproContractProvider implements ContractProvider {
 
     await Promise.all(blockRanges.map(async (blockRange) => {
       const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
-      const key = `events:${contract}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+      const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
       // checking redis if events are cached
       const result = await client.get(key);
       let blockEvents;
