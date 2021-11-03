@@ -39,27 +39,27 @@ export class BeproContractProvider implements ContractProvider {
 
     const client = createNodeRedisClient({ url: process.env.REDIS_URL });
 
-		// iterating by block numbers
-		let events = [];
-		let fromBlock = beproContract.params.blockConfig.fromBlock;
-		const blockRanges = []
-		const currentBlockNumber = await beproContract.web3.eth.getBlockNumber();
+    // iterating by block numbers
+    let events = [];
+    let fromBlock = beproContract.params.blockConfig.fromBlock;
+    const blockRanges = []
+    const currentBlockNumber = await beproContract.web3.eth.getBlockNumber();
 
-		while (fromBlock < currentBlockNumber) {
-			const toBlock = (fromBlock + beproContract.params.blockConfig.blockCount) > currentBlockNumber
+    while (fromBlock < currentBlockNumber) {
+      const toBlock = (fromBlock + beproContract.params.blockConfig.blockCount) > currentBlockNumber
         ? currentBlockNumber
         : (fromBlock + beproContract.params.blockConfig.blockCount);
 
-			blockRanges.push({
-				fromBlock,
-				toBlock
-			});
+      blockRanges.push({
+        fromBlock,
+        toBlock
+      });
 
-			fromBlock = toBlock;
-		}
+      fromBlock = toBlock;
+    }
 
-		await Promise.all(blockRanges.map(async (blockRange) => {
-			const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
+    await Promise.all(blockRanges.map(async (blockRange) => {
+      const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
       const key = `events:${contract}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
       // checking redis if events are cached
       const result = await client.get(key);
@@ -78,9 +78,9 @@ export class BeproContractProvider implements ContractProvider {
           await client.set(key, JSON.stringify(blockEvents));
         }
       }
-			events = blockEvents.concat(events);
-		}));
+      events = blockEvents.concat(events);
+    }));
 
-		return events.sort((a, b) => a.blockNumber - b.blockNumber);
+    return events.sort((a, b) => a.blockNumber - b.blockNumber);
   }
 }
