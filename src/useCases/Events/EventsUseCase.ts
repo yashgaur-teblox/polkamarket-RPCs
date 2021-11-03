@@ -5,9 +5,7 @@ export class EventsUseCase {
   constructor(private contractProvider: ContractProvider) {}
 
   async execute({ contract, eventName, filter, address }: EventsDTO) {
-    const beproContract = this.contractProvider.getContract(contract, address);
-
-    const events = await beproContract.getEvents(eventName, filter);
+    const events = await this.contractProvider.getContractEvents(contract, address, eventName, filter);
 
     return events;
   }
