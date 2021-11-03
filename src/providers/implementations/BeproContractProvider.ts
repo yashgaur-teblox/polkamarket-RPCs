@@ -7,10 +7,8 @@ export class BeproContractProvider implements ContractProvider {
   public bepro: any;
 
   constructor() {
-    const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
     this.bepro = new beprojs.Application({
       web3Provider: process.env.WEB3_PROVIDER,
-      blockConfig
     });
     this.bepro.start();
   }
@@ -30,8 +28,9 @@ export class BeproContractProvider implements ContractProvider {
 
   public async getContractEvents(contract: string, address: string, eventName: string, filter: Object) {
     const beproContract = this.getContract(contract, address);
+    const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
 
-    if (!beproContract.params.blockConfig) {
+    if (!blockConfig) {
       // no block config, querying directly in evm
       const events = await beproContract.getEvents(eventName, filter);
       return events;
@@ -41,14 +40,14 @@ export class BeproContractProvider implements ContractProvider {
 
     // iterating by block numbers
     let events = [];
-    let fromBlock = beproContract.params.blockConfig.fromBlock;
+    let fromBlock = blockConfig.fromBlock;
     const blockRanges = []
     const currentBlockNumber = await beproContract.web3.eth.getBlockNumber();
 
     while (fromBlock < currentBlockNumber) {
-      const toBlock = (fromBlock + beproContract.params.blockConfig.blockCount) > currentBlockNumber
+      const toBlock = (fromBlock + blockConfig.blockCount) > currentBlockNumber
         ? currentBlockNumber
-        : (fromBlock + beproContract.params.blockConfig.blockCount);
+        : (fromBlock + blockConfig.blockCount);
 
       blockRanges.push({
         fromBlock,
@@ -74,7 +73,7 @@ export class BeproContractProvider implements ContractProvider {
         });
 
         // not writing to cache if block range is not complete
-        if (blockRange.toBlock - blockRange.fromBlock === beproContract.params.blockConfig.blockCount) {
+        if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
           await client.set(key, JSON.stringify(blockEvents));
         }
       }
