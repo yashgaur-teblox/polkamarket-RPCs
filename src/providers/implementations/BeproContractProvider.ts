@@ -40,6 +40,7 @@ export class BeproContractProvider implements ContractProvider {
     client.nodeRedis.on("error", err => {
       // redis connection error, ignoring and letting the get/set functions error handlers act
       console.log("ERR :: Redis Connection: " + err);
+      client.end();
     });
 
 
@@ -69,6 +70,7 @@ export class BeproContractProvider implements ContractProvider {
 
     const response = await client.mget(...keys).catch(err => {
       console.log(err);
+      client.end();
       throw(err);
     });
 
@@ -91,6 +93,7 @@ export class BeproContractProvider implements ContractProvider {
           const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
           await client.set(key, JSON.stringify(blockEvents)).catch(err => {
             console.log(err);
+            client.end();
             throw(err);
           });
         }
