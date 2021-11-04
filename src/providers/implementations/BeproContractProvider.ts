@@ -36,7 +36,12 @@ export class BeproContractProvider implements ContractProvider {
       return events;
     }
 
-    const client = createNodeRedisClient({ url: process.env.REDIS_URL });
+    const client = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+    client.nodeRedis.on("error", err => {
+      // redis connection error, ignoring and letting the get/set functions error handlers act
+      console.log("ERR :: Redis Connection: " + err);
+    });
+
 
     // iterating by block numbers
     let events = [];
@@ -62,7 +67,10 @@ export class BeproContractProvider implements ContractProvider {
       return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
     });
 
-    const response = await client.mget(...keys);
+    const response = await client.mget(...keys).catch(err => {
+      console.log(err);
+      throw(err);
+    });
 
     await Promise.all(blockRanges.map(async (blockRange, index) => {
       // checking redis if events are cached
@@ -81,7 +89,10 @@ export class BeproContractProvider implements ContractProvider {
         if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
           const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
           const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
-          await client.set(key, JSON.stringify(blockEvents));
+          await client.set(key, JSON.stringify(blockEvents)).catch(err => {
+            console.log(err);
+            throw(err);
+          });
         }
       }
       events = blockEvents.concat(events);
