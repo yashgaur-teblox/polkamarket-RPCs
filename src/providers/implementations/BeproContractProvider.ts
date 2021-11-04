@@ -43,7 +43,6 @@ export class BeproContractProvider implements ContractProvider {
       client.end();
     });
 
-
     // iterating by block numbers
     let events = [];
     let fromBlock = blockConfig.fromBlock;
@@ -100,6 +99,9 @@ export class BeproContractProvider implements ContractProvider {
       }
       events = blockEvents.concat(events);
     }));
+
+    // closing connection after request is finished
+    client.end();
 
     return events.sort((a, b) => a.blockNumber - b.blockNumber);
   }
