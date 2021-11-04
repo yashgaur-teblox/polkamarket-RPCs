@@ -57,11 +57,16 @@ export class BeproContractProvider implements ContractProvider {
       fromBlock = toBlock;
     }
 
-    await Promise.all(blockRanges.map(async (blockRange) => {
+    const keys = blockRanges.map((blockRange) => {
       const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
-      const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+      return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+    });
+
+    const response = await client.mget(...keys);
+
+    await Promise.all(blockRanges.map(async (blockRange, index) => {
       // checking redis if events are cached
-      const result = await client.get(key);
+      const result = response[index];
       let blockEvents;
 
       if (result) {
@@ -74,6 +79,8 @@ export class BeproContractProvider implements ContractProvider {
 
         // not writing to cache if block range is not complete
         if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
+          const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
+          const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
           await client.set(key, JSON.stringify(blockEvents));
         }
       }
