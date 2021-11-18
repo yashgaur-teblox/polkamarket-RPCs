@@ -36,11 +36,11 @@ export class BeproContractProvider implements ContractProvider {
       return events;
     }
 
-    const client = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
-    client.nodeRedis.on("error", err => {
+    const readClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+    readClient.nodeRedis.on("error", err => {
       // redis connection error, ignoring and letting the get/set functions error handlers act
       console.log("ERR :: Redis Connection: " + err);
-      client.end();
+      readClient.end();
     });
 
     // iterating by block numbers
@@ -67,11 +67,14 @@ export class BeproContractProvider implements ContractProvider {
       return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
     });
 
-    const response = await client.mget(...keys).catch(err => {
+    const response = await readClient.mget(...keys).catch(err => {
       console.log(err);
-      client.end();
+      readClient.end();
       throw(err);
     });
+
+    // closing connection after request is finished
+    readClient.end();
 
     await Promise.all(blockRanges.map(async (blockRange, index) => {
       // checking redis if events are cached
@@ -88,20 +91,25 @@ export class BeproContractProvider implements ContractProvider {
 
         // not writing to cache if block range is not complete
         if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
+          const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+          writeClient.nodeRedis.on("error", err => {
+            // redis connection error, ignoring and letting the get/set functions error handlers act
+            console.log("ERR :: Redis Connection: " + err);
+            writeClient.end();
+          });
+
           const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
           const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
-          await client.set(key, JSON.stringify(blockEvents)).catch(err => {
+          await writeClient.set(key, JSON.stringify(blockEvents)).catch(err => {
             console.log(err);
-            client.end();
+            writeClient.end();
             throw(err);
           });
+          writeClient.end();
         }
       }
       events = blockEvents.concat(events);
     }));
-
-    // closing connection after request is finished
-    client.end();
 
     return events.sort((a, b) => a.blockNumber - b.blockNumber);
   }
