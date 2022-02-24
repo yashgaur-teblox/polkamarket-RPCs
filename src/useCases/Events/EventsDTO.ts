@@ -7,4 +7,5 @@ export interface EventsDTO {
     [key: string]: string;
   };
   address: string;
+  providerIndex: any;
 }

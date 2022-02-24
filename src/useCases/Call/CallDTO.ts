@@ -5,4 +5,5 @@ export interface CallDTO {
   method: any;
   args: any;
   address: any;
+  providerIndex: any;
 }
