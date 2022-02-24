@@ -6,14 +6,24 @@ import { createNodeRedisClient } from 'handy-redis';
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
 
+  public web3Providers: Array<string>;
+
   constructor() {
+    // providers are comma separated
+    this.web3Providers = process.env.WEB3_PROVIDER.split(',');
+  }
+
+  public initializeBepro(web3ProviderIndex: number) {
+    // picking up provider and starting bepro
     this.bepro = new beprojs.Application({
-      web3Provider: process.env.WEB3_PROVIDER,
+      web3Provider: this.web3Providers[web3ProviderIndex]
     });
     this.bepro.start();
   }
 
-  public getContract(contract: string, address: string) {
+  public getContract(contract: string, address: string, providerIndex: number) {
+    this.initializeBepro(providerIndex);
+
     if (contract === 'predictionMarket') {
       return this.bepro.getPredictionMarketContract({ contractAddress: address });
     } else if (contract === 'erc20') {
@@ -26,8 +36,8 @@ export class BeproContractProvider implements ContractProvider {
     }
   }
 
-  public async getContractEvents(contract: string, address: string, eventName: string, filter: Object) {
-    const beproContract = this.getContract(contract, address);
+  public async getContractEvents(contract: string, address: string, providerIndex: number, eventName: string, filter: Object) {
+    const beproContract = this.getContract(contract, address, providerIndex);
     const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
 
     if (!blockConfig) {
