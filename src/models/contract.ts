@@ -1,1 +1,1 @@
-export type Contract = 'predictionMarket' | 'erc20' | 'realitio';
+export type Contract = 'predictionMarket' | 'erc20' | 'realitio' | 'achievements';

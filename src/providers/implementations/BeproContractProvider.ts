@@ -30,6 +30,8 @@ export class BeproContractProvider implements ContractProvider {
       return this.bepro.getERC20Contract({ contractAddress: address });
     } else if (contract === 'realitio') {
       return this.bepro.getRealitioERC20Contract({ contractAddress: address });
+    } else if (contract === 'achievements') {
+      return this.bepro.getAchievementsContract({ contractAddress: address });
     } else {
       // this should never happen - should be overruled by the controller
       throw `'Contract ${contract} is not defined`;
