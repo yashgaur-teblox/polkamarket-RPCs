@@ -20,7 +20,7 @@ export class CallController {
         } as CallDTO);
 
         if (typeof data === 'boolean' || typeof data === 'string') {
-          return response.status(200).send([data]);
+          return response.status(200).send(data);
         }
 
         return response.status(200).send(Object.values(data));
