@@ -108,11 +108,11 @@ export class BeproContractProvider implements ContractProvider {
 
       keys.forEach((key, index) => {
         const result = response[index];
+        const fromBlock = parseInt(key.split(':').pop().split('-')[0]);
+        const toBlock = parseInt(key.split(':').pop().split('-')[1]);
 
-        if (!result) {
+        if (!result && (toBlock - fromBlock === blockConfig.blockCount)) {
           // key not stored in redis
-          const fromBlock = key.split(':').pop().split('-')[0];
-          const toBlock = key.split(':').pop().split('-')[1];
           writeKeys.push([
             key,
             JSON.stringify(etherscanData.filter(e => e.blockNumber >= fromBlock && e.blockNumber <= toBlock))
