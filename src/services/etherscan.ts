@@ -36,7 +36,7 @@ export class Etherscan {
     const { data } = await axios.get(etherscanUrl);
 
     // error fetching data
-    if (data.status === '0' && data.message === 'No records found') throw (data.result);
+    if (data.status === '0' && data.message !== 'No records found') throw (data.result);
 
     // hitting etherscan result limit, have to narrow search
     if (data.result.length === 1000) throw ('Data max limit of 1000 reached. Setup a smaller block range');

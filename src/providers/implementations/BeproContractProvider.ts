@@ -3,7 +3,7 @@ import * as beprojs from 'bepro-js';
 import { ContractProvider } from '@providers/ContractProvider';
 import { createNodeRedisClient } from 'handy-redis';
 
-import { Etherscan } from 'src/services';
+import { Etherscan } from '@services/Etherscan';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
@@ -104,7 +104,6 @@ export class BeproContractProvider implements ContractProvider {
     // successful etherscan call
     if (etherscanData) {
       // filling up empty redis slots
-      const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
       const writeKeys: Array<[key: string, value: string]> = [];
 
       keys.forEach((key, index) => {
@@ -121,12 +120,15 @@ export class BeproContractProvider implements ContractProvider {
         }
       });
 
-      await writeClient.mset(writeKeys as any).catch(err => {
-        console.log(err);
+      if (writeKeys.length > 0) {
+        const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+        await writeClient.mset(writeKeys as any).catch(err => {
+          console.log(err);
+          writeClient.end();
+          throw(err);
+        });
         writeClient.end();
-        throw(err);
-      });
-      writeClient.end();
+      }
 
       return etherscanData;
     }
