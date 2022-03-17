@@ -3,14 +3,19 @@ import * as beprojs from 'bepro-js';
 import { ContractProvider } from '@providers/ContractProvider';
 import { createNodeRedisClient } from 'handy-redis';
 
+import { Etherscan } from 'src/services';
+
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
 
   public web3Providers: Array<string>;
 
+  public useEtherscan: boolean;
+
   constructor() {
     // providers are comma separated
     this.web3Providers = process.env.WEB3_PROVIDER.split(',');
+    this.useEtherscan = !!(process.env.ETHERSCAN_URL && process.env.ETHERSCAN_API_KEY);
   }
 
   public initializeBepro(web3ProviderIndex: number) {
@@ -39,6 +44,7 @@ export class BeproContractProvider implements ContractProvider {
   public async getContractEvents(contract: string, address: string, providerIndex: number, eventName: string, filter: Object) {
     const beproContract = this.getContract(contract, address, providerIndex);
     const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
+    let etherscanData;
 
     if (!blockConfig) {
       // no block config, querying directly in evm
@@ -52,6 +58,14 @@ export class BeproContractProvider implements ContractProvider {
       console.log("ERR :: Redis Connection: " + err);
       readClient.end();
     });
+
+    if (this.useEtherscan) {
+      try {
+        etherscanData = await (new Etherscan().getEvents(beproContract, address, blockConfig.fromBlock, 'latest', eventName, filter));
+      } catch (err) {
+        // error fetching data from etherscan, taking RPC route
+      }
+    }
 
     // iterating by block numbers
     let events = [];
@@ -85,6 +99,36 @@ export class BeproContractProvider implements ContractProvider {
 
     // closing connection after request is finished
     readClient.end();
+
+    // successful etherscan call
+    if (etherscanData) {
+      // filling up empty redis slots
+      const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+      const writeKeys: Array<[key: string, value: string]> = [];
+
+      keys.forEach((key, index) => {
+        const result = response[index];
+
+        if (!result) {
+          // key not stored in redis
+          const fromBlock = key.split(':').pop().split('-')[0];
+          const toBlock = key.split(':').pop().split('-')[1];
+          writeKeys.push([
+            key,
+            JSON.stringify(etherscanData.filter(e => e.blockNumber >= fromBlock && e.blockNumber <= toBlock))
+          ]);
+        }
+      });
+
+      await writeClient.mset(writeKeys as any).catch(err => {
+        console.log(err);
+        writeClient.end();
+        throw(err);
+      });
+      writeClient.end();
+
+      return etherscanData;
+    }
 
     await Promise.all(blockRanges.map(async (blockRange, index) => {
       // checking redis if events are cached
