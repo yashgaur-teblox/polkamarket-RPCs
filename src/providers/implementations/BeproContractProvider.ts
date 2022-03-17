@@ -1,9 +1,9 @@
 import * as beprojs from 'bepro-js';
 
 import { ContractProvider } from '@providers/ContractProvider';
-import { createNodeRedisClient } from 'handy-redis';
-
 import { Etherscan } from '@services/Etherscan';
+
+import { createNodeRedisClient } from 'handy-redis';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
