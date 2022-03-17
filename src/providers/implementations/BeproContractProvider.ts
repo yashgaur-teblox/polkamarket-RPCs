@@ -70,6 +70,7 @@ export class BeproContractProvider implements ContractProvider {
     // iterating by block numbers
     let events = [];
     let fromBlock = blockConfig.fromBlock;
+    let rpcError;
     const blockRanges = []
     const currentBlockNumber = await beproContract.web3.eth.getBlockNumber();
 
@@ -138,10 +139,16 @@ export class BeproContractProvider implements ContractProvider {
       if (result) {
         blockEvents = JSON.parse(result);
       } else {
-        blockEvents = await beproContract.getContract().getPastEvents(eventName, {
-          filter,
-          ...blockRange
-        });
+        try {
+          blockEvents = await beproContract.getContract().getPastEvents(eventName, {
+            filter,
+            ...blockRange
+          });
+        } catch (err) {
+          // non-blocking, error will be thrown after all calls are performed
+          rpcError = err;
+          return;
+        }
 
         // not writing to cache if block range is not complete
         if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
@@ -162,8 +169,12 @@ export class BeproContractProvider implements ContractProvider {
           writeClient.end();
         }
       }
+
       events = blockEvents.concat(events);
     }));
+
+    // if there's a RPC error, error is thrown after all calls are performed
+    if (rpcError) throw(rpcError);
 
     return events.sort((a, b) => a.blockNumber - b.blockNumber);
   }
