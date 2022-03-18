@@ -19,7 +19,7 @@ export class CallController {
           args: args ? (args as string).split(',') : []
         } as CallDTO);
 
-        if (typeof data === 'boolean') {
+        if (typeof data === 'boolean' || typeof data === 'string') {
           return response.status(200).send(data);
         }
 
