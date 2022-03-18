@@ -18,6 +18,7 @@ module.exports = {
           '@middlewares': './src/middlewares',
           '@models': './src/models',
           '@providers': './src/providers',
+          '@services': './src/services',
           '@useCases': './src/useCases'
         }
       }
