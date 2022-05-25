@@ -11,10 +11,13 @@ export class BeproContractProvider implements ContractProvider {
 
   public useEtherscan: boolean;
 
+  public blockConfig: Object | undefined;
+
   constructor() {
     // providers are comma separated
     this.web3Providers = process.env.WEB3_PROVIDER.split(',');
     this.useEtherscan = !!(process.env.ETHERSCAN_URL && process.env.ETHERSCAN_API_KEY);
+    this.blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
   }
 
   public initializeBepro(web3ProviderIndex: number) {
@@ -42,12 +45,46 @@ export class BeproContractProvider implements ContractProvider {
     }
   }
 
+  public async getBlockRanges() {
+    if (!this.blockConfig) {
+      return [];
+    }
+
+    if (!this.bepro.web3) {
+      this.initializeBepro(0);
+    }
+
+    // iterating by block numbers
+    let fromBlock = this.blockConfig['fromBlock'];
+    const blockRanges = [];
+    const currentBlockNumber = await this.bepro.web3.eth.getBlockNumber();
+
+    while (fromBlock < currentBlockNumber) {
+      let toBlock = (fromBlock - fromBlock % this.blockConfig['blockCount']) + this.blockConfig['blockCount'];
+      toBlock = toBlock > currentBlockNumber ? currentBlockNumber : toBlock;
+
+      blockRanges.push({
+        fromBlock,
+        toBlock
+      });
+
+      fromBlock = toBlock + 1;
+    }
+
+    return blockRanges;
+  }
+
+  public blockRangeCacheKey(contract: string, address: string, eventName: string, filter: Object, blockRange: Object) {
+    const blockRangeStr = `${blockRange['fromBlock']}-${blockRange['toBlock']}`;
+    return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+  }
+
   public async getContractEvents(contract: string, address: string, providerIndex: number, eventName: string, filter: Object) {
     const beproContract = this.getContract(contract, address, providerIndex);
-    const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
+    this.blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
     let etherscanData;
 
-    if (!blockConfig) {
+    if (!this.blockConfig) {
       // no block config, querying directly in evm
       const events = await beproContract.getEvents(eventName, filter);
       return events;
@@ -57,7 +94,7 @@ export class BeproContractProvider implements ContractProvider {
 
     if (this.useEtherscan) {
       try {
-        etherscanData = await (new Etherscan().getEvents(beproContract, address, blockConfig.fromBlock, 'latest', eventName, filter));
+        etherscanData = await (new Etherscan().getEvents(beproContract, address, this.blockConfig['fromBlock'], 'latest', eventName, filter));
       } catch (err) {
         // error fetching data from etherscan, taking RPC route
       }
@@ -65,28 +102,10 @@ export class BeproContractProvider implements ContractProvider {
 
     // iterating by block numbers
     let events = [];
-    let fromBlock = blockConfig.fromBlock;
     let rpcError;
-    const blockRanges = []
-    const currentBlockNumber = await beproContract.web3.eth.getBlockNumber();
+    const blockRanges = await this.getBlockRanges();
 
-    while (fromBlock < currentBlockNumber) {
-      const toBlock = (fromBlock + blockConfig.blockCount) > currentBlockNumber
-        ? currentBlockNumber
-        : (fromBlock + blockConfig.blockCount);
-
-      blockRanges.push({
-        fromBlock,
-        toBlock
-      });
-
-      fromBlock = toBlock;
-    }
-
-    const keys = blockRanges.map((blockRange) => {
-      const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
-      return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
-    });
+    const keys = blockRanges.map((blockRange) => this.blockRangeCacheKey(contract, address, eventName, filter, blockRange));
 
     const response = await readClient.mget(...keys).catch(err => {
       console.log(err);
@@ -107,7 +126,7 @@ export class BeproContractProvider implements ContractProvider {
         const fromBlock = parseInt(key.split(':').pop().split('-')[0]);
         const toBlock = parseInt(key.split(':').pop().split('-')[1]);
 
-        if (!result && (toBlock - fromBlock === blockConfig.blockCount)) {
+        if (!result && (toBlock % this.blockConfig['blockCount'] === 0)) {
           // key not stored in redis
           writeKeys.push([
             key,
@@ -157,8 +176,7 @@ export class BeproContractProvider implements ContractProvider {
             writeClient.end();
           });
 
-          const blockRangeStr = `${blockRange.fromBlock}-${blockRange.toBlock}`;
-          const key = `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+          const key = this.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
           await writeClient.set(key, JSON.stringify(blockEvents)).catch(err => {
             console.log(err);
             writeClient.end();
