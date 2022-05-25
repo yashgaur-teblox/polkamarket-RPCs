@@ -1,4 +1,6 @@
-import { Queue, Worker, Job, JobsOptions } from 'bullmq';
+import { Queue, QueueScheduler, Worker, Job, JobsOptions } from 'bullmq';
+
+import IORedis from 'ioredis';
 
 export class BaseWorker {
   static QUEUE_NAME = '';
@@ -7,9 +9,25 @@ export class BaseWorker {
   private static queue: Queue;
 
   static init() {
-    this.queue = new Queue(this.QUEUE_NAME);
+    const connection = new IORedis(process.env.REDIS_URL || 6379);
 
-    new Worker(this.QUEUE_NAME, this.run);
+    this.queue = new Queue(
+      this.QUEUE_NAME,
+      {
+        connection,
+        defaultJobOptions: {
+          attempts: 5,
+          timeout: 60000,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+        },
+      }
+    );
+
+    new Worker(this.QUEUE_NAME, this.run, { concurrency: 5 });
+    new QueueScheduler(this.QUEUE_NAME);
 
     // TODO: improve this
     return this.queue;
