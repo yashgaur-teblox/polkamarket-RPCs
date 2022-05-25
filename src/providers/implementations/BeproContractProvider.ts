@@ -2,8 +2,7 @@ import * as beprojs from 'bepro-js';
 
 import { ContractProvider } from '@providers/ContractProvider';
 import { Etherscan } from '@services/Etherscan';
-
-import { createNodeRedisClient } from 'handy-redis';
+import { RedisService } from '@services/RedisService';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
@@ -54,12 +53,7 @@ export class BeproContractProvider implements ContractProvider {
       return events;
     }
 
-    const readClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
-    readClient.nodeRedis.on("error", err => {
-      // redis connection error, ignoring and letting the get/set functions error handlers act
-      console.log("ERR :: Redis Connection: " + err);
-      readClient.end();
-    });
+    const readClient = new RedisService().client;
 
     if (this.useEtherscan) {
       try {
@@ -123,7 +117,7 @@ export class BeproContractProvider implements ContractProvider {
       });
 
       if (writeKeys.length > 0) {
-        const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+        const writeClient = new RedisService().client;
         await writeClient.mset(writeKeys as any).catch(err => {
           console.log(err);
           writeClient.end();
@@ -155,8 +149,8 @@ export class BeproContractProvider implements ContractProvider {
         }
 
         // not writing to cache if block range is not complete
-        if (blockRange.toBlock - blockRange.fromBlock === blockConfig.blockCount) {
-          const writeClient = createNodeRedisClient({ url: process.env.REDIS_URL, retry_strategy: () => { return undefined; } });
+        if (blockRange.toBlock % this.blockConfig['blockCount'] === 0) {
+          const writeClient = new RedisService().client;
           writeClient.nodeRedis.on("error", err => {
             // redis connection error, ignoring and letting the get/set functions error handlers act
             console.log("ERR :: Redis Connection: " + err);
