@@ -44,7 +44,7 @@ export class EventsController {
         contract,
         address,
         eventName,
-        filter
+        filter: filter ? JSON.parse(filter as string) : {}
       }
     );
 

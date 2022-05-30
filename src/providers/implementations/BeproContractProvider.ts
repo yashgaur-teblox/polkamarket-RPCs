@@ -75,9 +75,36 @@ export class BeproContractProvider implements ContractProvider {
     return blockRanges;
   }
 
+  normalizeFilter(filter: Object): string {
+    // sorting filter keys
+    const keys = Object.keys(filter).sort();
+
+    // normalizing filter
+    const normalizedFilter = {};
+    keys.forEach(key => {
+      // ignoring item if not present
+      if (!filter[key]) {
+        return;
+      }
+
+      if (typeof filter[key] === 'string' && filter[key].startsWith('0x')) {
+        // parsing as lowercase string in case it's a hexadecimal
+        normalizedFilter[key] = filter[key].toString().toLowerCase();
+      } else if (typeof filter[key] === 'string' && !isNaN(parseInt(filter[key]))) {
+        // parsing string as integer in case it's a number
+        normalizedFilter[key] = parseInt(filter[key]);
+      } else {
+        // storing string as downcase
+        normalizedFilter[key] = filter[key].toString().toLowerCase();
+      }
+    });
+
+    return JSON.stringify(normalizedFilter);
+  }
+
   public blockRangeCacheKey(contract: string, address: string, eventName: string, filter: Object, blockRange: Object) {
     const blockRangeStr = `${blockRange['fromBlock']}-${blockRange['toBlock']}`;
-    return `events:${contract}:${address}:${eventName}:${JSON.stringify(filter)}:${blockRangeStr}`;
+    return `events:${contract}:${address}:${eventName}:${this.normalizeFilter(filter)}:${blockRangeStr}`;
   }
 
   public async getContractEvents(contract: string, address: string, providerIndex: number, eventName: string, filter: Object) {
