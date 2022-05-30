@@ -3,6 +3,7 @@ import { EventsDTO } from './EventsDTO';
 
 import { EventsUseCase } from './EventsUseCase';
 
+import { EventsWorker } from 'src/workers/EventsWorker';
 export class EventsController {
   constructor(private eventsUseCase: EventsUseCase) {}
 
@@ -33,5 +34,20 @@ export class EventsController {
         }
       }
     }
+  }
+
+  async handleWorker(request: Request, response: Response): Promise<Response> {
+    const { contract, eventName, filter, address } = request.query;
+
+    EventsWorker.send(
+      {
+        contract,
+        address,
+        eventName,
+        filter
+      }
+    );
+
+    return response.status(204).send(null);
   }
 }
