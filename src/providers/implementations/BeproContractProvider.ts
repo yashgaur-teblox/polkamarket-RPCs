@@ -3,7 +3,8 @@ import * as beprojs from 'bepro-js';
 import { ContractProvider } from '@providers/ContractProvider';
 import { Etherscan } from '@services/Etherscan';
 import { RedisService } from '@services/RedisService';
-import { EventsWorker } from 'src/workers/EventsWorker';
+
+import { EventsBlockRangeWorker } from 'src/workers/EventsBlockRangeWorker';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
@@ -176,18 +177,25 @@ export class BeproContractProvider implements ContractProvider {
       return etherscanData;
     }
 
-    if (response.slice(0, -1).some(r => r === null)) {
-      // some keys are not stored in redis, triggering backfill worker
-      EventsWorker.send(
-        {
-          contract,
-          address,
-          eventName,
-          filter
-        }
-      );
-    }
+    // filling up empty redis slots (only verifying for first provider)
+    if (providerIndex === 0) {
+      blockRanges.forEach((blockRange, index) => {
+        const result = response[index];
 
+        if (!result && (blockRange.toBlock % this.blockConfig['blockCount'] === 0)) {
+          // key not stored in redis, triggering worker
+          EventsBlockRangeWorker.send(
+            {
+              contract,
+              address,
+              eventName,
+              filter,
+              blockRange,
+            }
+          );
+        }
+      });
+    }
 
     await Promise.all(blockRanges.map(async (blockRange, index) => {
       // checking redis if events are cached
