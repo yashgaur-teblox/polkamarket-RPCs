@@ -62,7 +62,7 @@ export class EventsWorker extends BaseWorker {
         writeClient.end();
       }
 
-      // return etherscanData;
+      return etherscanData;
     } catch (err) {
       // error fetching data from etherscan, taking iterations route
     }
