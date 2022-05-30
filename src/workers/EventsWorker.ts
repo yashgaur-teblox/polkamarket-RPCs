@@ -58,7 +58,7 @@ export class EventsWorker extends BaseWorker {
 
       if (writeKeys.length > 0) {
         const writeClient = new RedisService().client;
-        // await writeClient.mset(writeKeys as any);
+        await writeClient.mset(writeKeys as any);
         writeClient.end();
       }
 
