@@ -45,6 +45,9 @@ export class EventsController {
         address,
         eventName,
         filter: filter ? JSON.parse(filter as string) : {}
+      },
+      {
+        priority: 1
       }
     );
 

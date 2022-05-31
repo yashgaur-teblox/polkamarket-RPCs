@@ -4,7 +4,7 @@ import { ContractProvider } from '@providers/ContractProvider';
 import { Etherscan } from '@services/Etherscan';
 import { RedisService } from '@services/RedisService';
 
-import { EventsBlockRangeWorker } from 'src/workers/EventsBlockRangeWorker';
+import { EventsWorker } from 'src/workers/EventsWorker';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
@@ -184,7 +184,7 @@ export class BeproContractProvider implements ContractProvider {
 
         if (!result && (blockRange.toBlock % this.blockConfig['blockCount'] === 0)) {
           // key not stored in redis, triggering worker
-          EventsBlockRangeWorker.send(
+          EventsWorker.send(
             {
               contract,
               address,

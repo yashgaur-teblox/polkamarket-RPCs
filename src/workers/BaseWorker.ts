@@ -6,7 +6,7 @@ export class BaseWorker {
   static QUEUE_NAME = '';
   static concurrency = 5;
 
-  private static queue: Queue;
+  protected static queue: Queue;
 
   static init() {
     const connection = new IORedis(process.env.REDIS_URL || 6379);
