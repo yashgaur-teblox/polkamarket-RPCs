@@ -146,7 +146,7 @@ export class BeproContractProvider implements ContractProvider {
     readClient.end();
 
     // successful etherscan call
-    if (etherscanData) {
+    if (etherscanData && !etherscanData.maxLimitReached) {
       // filling up empty redis slots
       const writeKeys: Array<[key: string, value: string]> = [];
 
@@ -159,7 +159,7 @@ export class BeproContractProvider implements ContractProvider {
           // key not stored in redis
           writeKeys.push([
             key,
-            JSON.stringify(etherscanData.filter(e => e.blockNumber >= fromBlock && e.blockNumber <= toBlock))
+            JSON.stringify(etherscanData.result.filter(e => e.blockNumber >= fromBlock && e.blockNumber <= toBlock))
           ]);
         }
       });
@@ -174,27 +174,20 @@ export class BeproContractProvider implements ContractProvider {
         writeClient.end();
       }
 
-      return etherscanData;
+      return etherscanData.result;
     }
 
     // filling up empty redis slots (only verifying for first provider)
-    if (providerIndex === 0) {
-      blockRanges.forEach((blockRange, index) => {
-        const result = response[index];
-
-        if (!result && (blockRange.toBlock % this.blockConfig['blockCount'] === 0)) {
-          // key not stored in redis, triggering worker
-          EventsWorker.send(
-            {
-              contract,
-              address,
-              eventName,
-              filter,
-              blockRange,
-            }
-          );
+    if (providerIndex === 0 && response.slice(0, -1).some(r => r === null)) {
+      // some keys are not stored in redis, triggering backfill worker
+      EventsWorker.send(
+        {
+          contract,
+          address,
+          eventName,
+          filter
         }
-      });
+      );
     }
 
     await Promise.all(blockRanges.map(async (blockRange, index) => {

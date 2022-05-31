@@ -14,7 +14,7 @@ export class EventsWorker extends BaseWorker {
   static async run(job: Job<any>): Promise<any> {
     const beproContractProvider = new BeproContractProvider();
 
-    const { contract, address, eventName, filter, blockRange } = job.data;
+    const { contract, address, eventName, filter, blockRange, startBlock } = job.data;
     const providerIndex = 0;
     const useEtherscan = !!(process.env.ETHERSCAN_URL && process.env.ETHERSCAN_API_KEY);
     const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
@@ -22,7 +22,7 @@ export class EventsWorker extends BaseWorker {
     let data;
 
     // if blockRange is not provided, the whole set will try to be fetched
-    const fromBlock = blockRange ? blockRange['fromBlock'] : blockConfig['fromBlock'];
+    const fromBlock = blockRange ? blockRange['fromBlock'] : (startBlock ? startBlock : blockConfig['fromBlock']);
     const toBlock = blockRange ? blockRange['toBlock'] : 'latest';
 
     if (useEtherscan) {
@@ -62,17 +62,28 @@ export class EventsWorker extends BaseWorker {
         return;
       }
 
-      // filling up empty redis slots
-      const writeKeys: Array<[key: string, value: string]> = [];
+      const writeBlockRanges = blockRanges.filter((blockRange) => {
+        const inFromBlock = !startBlock || blockRange['fromBlock'] >= startBlock;
+        const inToBlock = !data.maxLimitReached || blockRange['toBlock'] < data.result[data.result.length - 1].blockNumber
 
-      blockRanges.forEach((blockRange, index) => {
+        return inFromBlock && inToBlock;
+      });
+
+      data.maxLimitReached
+        ? blockRanges.filter((blockRange) => blockRange['toBlock'] < data.result[data.result.length - 1].blockNumber)
+        : blockRanges;
+
+      // filling up empty redis slots
+      const writeKeys = [];
+
+      writeBlockRanges.forEach((blockRange, index) => {
         const key = beproContractProvider.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
 
-        if (toBlock % blockConfig['blockCount'] === 0) {
+        if (blockRange['toBlock'] % blockConfig['blockCount'] === 0) {
           // key not stored in redis
           writeKeys.push([
             key,
-            JSON.stringify(data.filter(e => e.blockNumber >= fromBlock && e.blockNumber <= toBlock))
+            JSON.stringify(data.result.filter(e => e.blockNumber >= blockRange['fromBlock'] && e.blockNumber <= blockRange['toBlock']))
           ]);
         }
       });
@@ -83,10 +94,30 @@ export class EventsWorker extends BaseWorker {
         writeClient.end();
       }
 
+      if (data.maxLimitReached) {
+        // if max limit is reached, the data will be re-fetched starting from the last block range
+        const lastBlock = data.result[data.result.length - 1].blockNumber;
+        const startBlock = (lastBlock - lastBlock % blockConfig['blockCount']);
+
+        // triggering worker with next block range
+        EventsWorker.send(
+          {
+            contract,
+            address,
+            eventName,
+            filter,
+            startBlock
+          },
+          {
+            priority: 1
+          }
+        );
+      }
+
       return;
     }
 
-    if (!data) {
+    if (!data || data.maxLimitReached) {
       data = await beproContract.getContract().getPastEvents(eventName, {
         filter,
         ...blockRange
