@@ -3,7 +3,7 @@ import { EventsDTO } from './EventsDTO';
 
 import { EventsUseCase } from './EventsUseCase';
 
-import { EventsWorker } from 'src/workers/EventsWorker';
+import { EventsWorker } from '@workers/EventsWorker';
 export class EventsController {
   constructor(private eventsUseCase: EventsUseCase) {}
 

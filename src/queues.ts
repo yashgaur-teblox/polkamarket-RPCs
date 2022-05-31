@@ -2,7 +2,7 @@ import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 
-import { EventsWorker } from './workers/EventsWorker';
+import { EventsWorker } from '@workers/EventsWorker';
 
 // initializing all queues
 // TODO: improve this

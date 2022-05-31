@@ -4,7 +4,7 @@ import { ContractProvider } from '@providers/ContractProvider';
 import { Etherscan } from '@services/Etherscan';
 import { RedisService } from '@services/RedisService';
 
-import { EventsWorker } from 'src/workers/EventsWorker';
+import { EventsWorker } from '@workers/EventsWorker';
 
 export class BeproContractProvider implements ContractProvider {
   public bepro: any;
@@ -178,7 +178,7 @@ export class BeproContractProvider implements ContractProvider {
     }
 
     // filling up empty redis slots (only verifying for first provider)
-    if (providerIndex === 0 && response.slice(0, -1).some(r => r === null)) {
+    if (providerIndex === 0 && response.slice(0, -1).filter(r => r === null).length > 1) {
       // some keys are not stored in redis, triggering backfill worker
       EventsWorker.send(
         {
