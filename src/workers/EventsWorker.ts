@@ -39,6 +39,8 @@ export class EventsWorker extends BaseWorker {
         );
       } catch (err) {
         // error fetching data from etherscan, taking RPC route
+        console.log('etherscan error!')
+        console.log(err);
       }
     }
 

@@ -26,7 +26,7 @@ export class BaseWorker {
       }
     );
 
-    new Worker(this.QUEUE_NAME, this.run, { connection, concurrency: 5 });
+    new Worker(this.QUEUE_NAME, this.run, { connection, concurrency: 2 });
     new QueueScheduler(this.QUEUE_NAME, { connection });
 
     // TODO: improve this
