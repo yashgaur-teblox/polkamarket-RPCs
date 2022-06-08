@@ -19,7 +19,8 @@ module.exports = {
           '@models': './src/models',
           '@providers': './src/providers',
           '@services': './src/services',
-          '@useCases': './src/useCases'
+          '@useCases': './src/useCases',
+          '@workers': './src/workers'
         }
       }
     ]

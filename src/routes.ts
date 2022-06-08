@@ -17,4 +17,12 @@ router.get(
   }
 );
 
+router.post(
+  '/events',
+  validateObjectSchema(eventsSchema),
+  (request, response) => {
+    return eventsController.handleWorker(request, response);
+  }
+);
+
 export { router };

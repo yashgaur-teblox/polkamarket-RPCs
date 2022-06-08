@@ -38,10 +38,10 @@ export class Etherscan {
     // error fetching data
     if (data.status === '0' && data.message !== 'No records found') throw (data.result);
 
-    // hitting etherscan result limit, have to narrow search
-    if (data.result.length === 1000) throw ('Data max limit of 1000 reached. Setup a smaller block range');
+    // hit etherscan result limit
+    const maxLimitReached = data.result.length >= 1000;
 
-    return data.result.map (result => {
+    const events = data.result.map (result => {
       const decodedData = contract.web3.eth.abi.decodeLog(
         eventOptions.event.inputs,
         result.data,
@@ -50,6 +50,11 @@ export class Etherscan {
 
       return this.mapEvent(result, decodedData, eventName);
     }).sort((a, b) => a.blockNumber - b.blockNumber);
+
+    return {
+      result: events,
+      maxLimitReached,
+    };
   }
 
   private mapEvent(data, decodedData, eventName) {
