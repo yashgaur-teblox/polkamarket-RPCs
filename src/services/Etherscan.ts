@@ -33,10 +33,23 @@ export class Etherscan {
       }
     });
 
-    const { data } = await axios.get(etherscanUrl);
+    // trying to fetch data from etherscan with 5 attempts
+    let data;
+    const attempts = 5;
 
-    // error fetching data
-    if (data.status === '0' && data.message !== 'No records found') throw (data.result);
+    for (let i = 0; i < attempts; i++) {
+      try {
+        ({ data } = await axios.get(etherscanUrl));
+        // error fetching data
+        if (data.status === '0' && data.message !== 'No records found') throw (data.result);
+
+        break;
+      } catch (err) {
+        if (i === attempts - 1) {
+          throw err;
+        }
+      }
+    }
 
     // hit etherscan result limit
     const maxLimitReached = data.result.length >= 1000;
