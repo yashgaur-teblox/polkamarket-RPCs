@@ -2,7 +2,7 @@ import { Job, JobsOptions } from 'bullmq';
 
 import { BaseWorker } from './BaseWorker';
 
-import { BeproContractProvider } from '@providers/implementations/BeproContractProvider';
+import { PolkamarketsContractProvider } from '@providers/implementations/PolkamarketsContractProvider';
 
 import { Etherscan } from '@services/Etherscan';
 import { RedisService } from '@services/RedisService';
@@ -12,13 +12,13 @@ export class EventsWorker extends BaseWorker {
   static concurrency = 5;
 
   static async run(job: Job<any>): Promise<any> {
-    const beproContractProvider = new BeproContractProvider();
+    const polkamarketsContractProvider = new PolkamarketsContractProvider();
 
     const { contract, address, eventName, filter, blockRange, startBlock } = job.data;
     const providerIndex = 0;
     const useEtherscan = !!(process.env.ETHERSCAN_URL && process.env.ETHERSCAN_API_KEY);
     const blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
-    const beproContract = beproContractProvider.getContract(contract, address, providerIndex);
+    const polkamarketsContract = polkamarketsContractProvider.getContract(contract, address, providerIndex);
     let data;
 
     // if blockRange is not provided, the whole set will try to be fetched
@@ -29,7 +29,7 @@ export class EventsWorker extends BaseWorker {
       try {
         data = await (
           new Etherscan().getEvents(
-            beproContract,
+            polkamarketsContract,
             address,
             fromBlock,
             toBlock,
@@ -45,7 +45,7 @@ export class EventsWorker extends BaseWorker {
     }
 
     if (!blockRange) {
-      const blockRanges = await beproContractProvider.getBlockRanges();
+      const blockRanges = await polkamarketsContractProvider.getBlockRanges();
 
       if (!data) {
         // triggering worker with all block ranges
@@ -79,7 +79,7 @@ export class EventsWorker extends BaseWorker {
       const writeKeys = [];
 
       writeBlockRanges.forEach((blockRange, index) => {
-        const key = beproContractProvider.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
+        const key = polkamarketsContractProvider.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
 
         if (blockRange['toBlock'] % blockConfig['blockCount'] === 0) {
           // key not stored in redis
@@ -120,14 +120,14 @@ export class EventsWorker extends BaseWorker {
     }
 
     if (!data || data.maxLimitReached) {
-      data = await beproContract.getContract().getPastEvents(eventName, {
+      data = await polkamarketsContract.getContract().getPastEvents(eventName, {
         filter,
         ...blockRange
       });
     }
 
     if (blockRange['toBlock'] % blockConfig['blockCount'] === 0) {
-      const key = beproContractProvider.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
+      const key = polkamarketsContractProvider.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
       const writeClient = new RedisService().client;
       await writeClient.set(key, JSON.stringify(data));
       // closing connection after request is finished
