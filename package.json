@@ -13,7 +13,7 @@
   "dependencies": {
     "@bull-board/express": "^3.11.0",
     "@reality.eth/reality-eth-lib": "^2.1.1",
-    "bepro-js": "bepronetwork/bepro-js#feature/prediction-markets-nft-integration",
+    "polkamarkets-js": "polkamarkets/polkamarkets-js",
     "bullmq": "^1.83.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",

@@ -1,4 +1,4 @@
-import * as beprojs from 'bepro-js';
+import * as polkamarketsjs from 'polkamarkets-js';
 
 import { ContractProvider } from '@providers/ContractProvider';
 import { Etherscan } from '@services/Etherscan';
@@ -6,8 +6,8 @@ import { RedisService } from '@services/RedisService';
 
 import { EventsWorker } from '@workers/EventsWorker';
 
-export class BeproContractProvider implements ContractProvider {
-  public bepro: any;
+export class PolkamarketsContractProvider implements ContractProvider {
+  public polkamarkets: any;
 
   public web3Providers: Array<string>;
 
@@ -22,25 +22,27 @@ export class BeproContractProvider implements ContractProvider {
     this.blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
   }
 
-  public initializeBepro(web3ProviderIndex: number) {
-    // picking up provider and starting bepro
-    this.bepro = new beprojs.Application({
+  public initializePolkamarkets(web3ProviderIndex: number) {
+    // picking up provider and starting polkamarkets
+    this.polkamarkets = new polkamarketsjs.Application({
       web3Provider: this.web3Providers[web3ProviderIndex]
     });
-    this.bepro.start();
+    this.polkamarkets.start();
   }
 
   public getContract(contract: string, address: string, providerIndex: number) {
-    this.initializeBepro(providerIndex);
+    this.initializePolkamarkets(providerIndex);
 
     if (contract === 'predictionMarket') {
-      return this.bepro.getPredictionMarketContract({ contractAddress: address });
+      return this.polkamarkets.getPredictionMarketContract({ contractAddress: address });
     } else if (contract === 'erc20') {
-      return this.bepro.getERC20Contract({ contractAddress: address });
+      return this.polkamarkets.getERC20Contract({ contractAddress: address });
     } else if (contract === 'realitio') {
-      return this.bepro.getRealitioERC20Contract({ contractAddress: address });
+      return this.polkamarkets.getRealitioERC20Contract({ contractAddress: address });
     } else if (contract === 'achievements') {
-      return this.bepro.getAchievementsContract({ contractAddress: address });
+      return this.polkamarkets.getAchievementsContract({ contractAddress: address });
+    } else if (contract === 'voting') {
+      return this.polkamarkets.getVotingContract({ contractAddress: address });
     } else {
       // this should never happen - should be overruled by the controller
       throw `'Contract ${contract} is not defined`;
@@ -52,14 +54,14 @@ export class BeproContractProvider implements ContractProvider {
       return [];
     }
 
-    if (!this.bepro) {
-      this.initializeBepro(0);
+    if (!this.polkamarkets) {
+      this.initializePolkamarkets(0);
     }
 
     // iterating by block numbers
     let fromBlock = this.blockConfig['fromBlock'];
     const blockRanges = [];
-    const currentBlockNumber = await this.bepro.web3.eth.getBlockNumber();
+    const currentBlockNumber = await this.polkamarkets.web3.eth.getBlockNumber();
 
     while (fromBlock < currentBlockNumber) {
       let toBlock = (fromBlock - fromBlock % this.blockConfig['blockCount']) + this.blockConfig['blockCount'];
@@ -109,13 +111,13 @@ export class BeproContractProvider implements ContractProvider {
   }
 
   public async getContractEvents(contract: string, address: string, providerIndex: number, eventName: string, filter: Object) {
-    const beproContract = this.getContract(contract, address, providerIndex);
+    const polkamarketsContract = this.getContract(contract, address, providerIndex);
     this.blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
     let etherscanData;
 
     if (!this.blockConfig) {
       // no block config, querying directly in evm
-      const events = await beproContract.getEvents(eventName, filter);
+      const events = await polkamarketsContract.getEvents(eventName, filter);
       return events;
     }
 
@@ -123,7 +125,7 @@ export class BeproContractProvider implements ContractProvider {
 
     if (this.useEtherscan) {
       try {
-        etherscanData = await (new Etherscan().getEvents(beproContract, address, this.blockConfig['fromBlock'], 'latest', eventName, filter));
+        etherscanData = await (new Etherscan().getEvents(polkamarketsContract, address, this.blockConfig['fromBlock'], 'latest', eventName, filter));
       } catch (err) {
         // error fetching data from etherscan, taking RPC route
       }
@@ -199,7 +201,7 @@ export class BeproContractProvider implements ContractProvider {
         blockEvents = JSON.parse(result);
       } else {
         try {
-          blockEvents = await beproContract.getContract().getPastEvents(eventName, {
+          blockEvents = await polkamarketsContract.getContract().getPastEvents(eventName, {
             filter,
             ...blockRange
           });

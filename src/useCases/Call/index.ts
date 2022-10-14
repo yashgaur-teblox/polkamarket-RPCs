@@ -1,11 +1,11 @@
-import { BeproContractProvider } from '@providers/implementations/BeproContractProvider';
+import { PolkamarketsContractProvider } from '@providers/implementations/PolkamarketsContractProvider';
 import { CallController } from './CallController';
 import { CallUseCase } from './CallUseCase';
 import { callSchema } from './CallSchema';
 
-const beproContractProvider = new BeproContractProvider();
+const polkamarketsContractProvider = new PolkamarketsContractProvider();
 
-const callUseCase = new CallUseCase(beproContractProvider);
+const callUseCase = new CallUseCase(polkamarketsContractProvider);
 const callController = new CallController(callUseCase);
 
 export { callUseCase, callController, callSchema };
