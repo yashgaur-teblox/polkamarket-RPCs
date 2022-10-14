@@ -168,11 +168,16 @@ export class PolkamarketsContractProvider implements ContractProvider {
 
       if (writeKeys.length > 0) {
         const writeClient = new RedisService().client;
-        await writeClient.mset(writeKeys as any).catch(err => {
-          console.log(err);
-          writeClient.end();
-          throw(err);
-        });
+
+        // writing to redis (using N set calls instead of mset to set a ttl)
+        await Promise.all(writeKeys.map(async (item) => {
+          await writeClient.set(item[0], item[1], 'EX', 60 * 60 * 24 * 2).catch(err => {
+            console.log(err);
+            writeClient.end();
+            throw(err);
+          });
+        }));
+
         writeClient.end();
       }
 
@@ -221,7 +226,7 @@ export class PolkamarketsContractProvider implements ContractProvider {
           });
 
           const key = this.blockRangeCacheKey(contract, address, eventName, filter, blockRange);
-          await writeClient.set(key, JSON.stringify(blockEvents)).catch(err => {
+          await writeClient.set(key, JSON.stringify(blockEvents), 'EX', 60 * 60 * 24 * 2).catch(err => {
             console.log(err);
             writeClient.end();
             throw(err);
