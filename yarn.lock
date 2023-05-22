@@ -11827,7 +11827,7 @@ pngjs@^3.3.0:
 
 polkamarkets-js@polkamarkets/polkamarkets-js#feature/v2:
   version "1.2.1"
-  resolved "https://codeload.github.com/polkamarkets/polkamarkets-js/tar.gz/f3c5c9c9dcf4769f1db12843ba20322ddffab90d"
+  resolved "https://codeload.github.com/polkamarkets/polkamarkets-js/tar.gz/e906d9b02223c39f6009e8280492714ebbe0fe60"
   dependencies:
     "@biconomy/smart-account" "^2.0.0"
     "@biconomy/web3-auth" "^2.0.0"
