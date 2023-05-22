@@ -1,3 +1,10 @@
+// TODO: improve this, temp solution
+const { JSDOM } = require('jsdom');
+const dom = new JSDOM();
+global.document = dom.window.document;
+global.window = dom.window;
+global.navigator = dom.window.navigator;
+
 import express from 'express';
 import cors from 'cors';
 

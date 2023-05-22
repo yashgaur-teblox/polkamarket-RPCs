@@ -18,6 +18,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "handy-redis": "^2.3.1",
+    "jsdom": "^22.0.0",
     "polkamarkets-js": "polkamarkets/polkamarkets-js#feature/v2",
     "redis": "^3.1.2",
     "yup": "^0.32.9"
