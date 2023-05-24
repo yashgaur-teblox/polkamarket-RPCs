@@ -13,12 +13,12 @@
   "dependencies": {
     "@bull-board/express": "^3.11.0",
     "@reality.eth/reality-eth-lib": "^2.1.1",
-    "polkamarkets-js": "polkamarkets/polkamarkets-js",
     "bullmq": "^1.83.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "handy-redis": "^2.3.1",
+    "polkamarkets-js": "polkamarkets/polkamarkets-js#feature/v2",
     "redis": "^3.1.2",
     "yup": "^0.32.9"
   },
