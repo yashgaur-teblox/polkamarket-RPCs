@@ -108,7 +108,12 @@ export class EventsWorker extends BaseWorker {
       if (data.maxLimitReached) {
         // if max limit is reached, the data will be re-fetched starting from the last block range
         const lastBlock = data.result[data.result.length - 1].blockNumber;
-        const startBlock = (lastBlock - lastBlock % blockConfig['blockCount']);
+        let firstBlock = (lastBlock - lastBlock % blockConfig['blockCount']);
+
+        if (firstBlock === startBlock) {
+          // same as the job start block, the worker will be triggered with the next block range
+          firstBlock += blockConfig['blockCount'];
+        }
 
         // triggering worker with next block range
         EventsWorker.send(
@@ -117,7 +122,7 @@ export class EventsWorker extends BaseWorker {
             address,
             eventName,
             filter,
-            startBlock
+            startBlock: firstBlock
           },
           {
             priority: 1
