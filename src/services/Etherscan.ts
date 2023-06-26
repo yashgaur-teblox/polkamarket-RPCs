@@ -15,7 +15,7 @@ export class Etherscan {
   }
 
   public async getEvents(contract, address, fromBlock, toBlock, eventName, filter) {
-    let etherscanUrl = `${this.baseUrl}/api?module=logs&action=getLogs&apikey=${this.apiKey}`;
+    let etherscanUrl = `${this.baseUrl}/api?module=logs&action=getLogs`;
     etherscanUrl += `&address=${address}`;
     if (fromBlock) etherscanUrl += `&fromBlock=${fromBlock}`;
     if (toBlock) etherscanUrl += `&toBlock=${toBlock}`;
