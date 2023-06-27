@@ -187,7 +187,7 @@ export class PolkamarketsContractProvider implements ContractProvider {
     }
 
     // filling up empty redis slots (only verifying for first provider)
-    if (providerIndex === 0 && response.slice(0, -1).filter(r => r === null).length > 1) {
+    if (!process.env.DISABLE_QUEUES && providerIndex === 0 && response.slice(0, -1).filter(r => r === null).length > 1) {
       // some keys are not stored in redis, triggering backfill worker
       EventsWorker.send(
         {
