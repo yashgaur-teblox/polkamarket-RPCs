@@ -121,9 +121,11 @@ export class PolkamarketsContractProvider implements ContractProvider {
     this.blockConfig = process.env.WEB3_PROVIDER_BLOCK_CONFIG ? JSON.parse(process.env.WEB3_PROVIDER_BLOCK_CONFIG) : null;
     let etherscanData;
 
-    if (!this.blockConfig) {
+    if (!this.blockConfig || !this.blockConfig['blockCount']) {
       // no block config, querying directly in evm
-      const events = await polkamarketsContract.getEvents(eventName, filter);
+      const fromBlock = this.blockConfig ? this.blockConfig['fromBlock'] : 0;
+
+      const events = await polkamarketsContract.getEvents(eventName, filter, fromBlock);
       return events;
     }
 
