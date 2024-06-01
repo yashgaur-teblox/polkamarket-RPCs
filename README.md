@@ -46,3 +46,5 @@ Contributions are welcomed but we ask to red existing code guidelines, specially
 The usage of ETH in all methods or params means using the native currency of that blockchain, example BSC in Binance Chain would still be nominated as ETH
 
 [1]: https://github.com/polkamarkets/polkamarkets-js/blob/master/CONTRIBUTING.md
+
+<iframe width="560" height="315" src='https://www.dbdiagram.io/e/665abef8b65d9338793ad1d5/665abf25b65d9338793ad3d8'> </iframe>
